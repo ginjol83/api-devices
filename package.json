@@ -1,17 +1,25 @@
 {
-  "name": "api-dispositives",
+  "name": "api-devices",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "start": "node ./src/index.js",
+    "build": "webpack"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "express": "^4.18.2",
-    "mysql2": "^3.9.1"
+    "express-validator": "^7.0.1",
+    "https-browserify": "^1.0.0",
+    "moment": "^2.30.1",
+    "mysql2": "^3.9.1",
+    "webpack": "^5.90.2"
+  },
+  "devDependencies": {
+    "webpack-cli": "^5.1.4"
   }
 }

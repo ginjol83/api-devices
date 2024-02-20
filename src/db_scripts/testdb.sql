@@ -2,9 +2,10 @@
 CREATE DATABASE IF NOT EXISTS device_management;
 USE device_management;
 
--- Create the devices table
+-- Create the devices table with a uuid field
 CREATE TABLE IF NOT EXISTS devices (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    uuid CHAR(36) NOT NULL UNIQUE,
     name VARCHAR(255) NOT NULL,
     type VARCHAR(100),
     brand VARCHAR(100),
@@ -15,14 +16,15 @@ CREATE TABLE IF NOT EXISTS devices (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Insert sample data into the devices table
-INSERT INTO devices (name, type, brand, model, status) VALUES
-('iPhone 12', 'Smartphone', 'Apple', 'A2172', 'active'),
-('Galaxy S21', 'Smartphone', 'Samsung', 'SM-G991U', 'active'),
-('iPad Pro', 'Tablet', 'Apple', 'A2229', 'active'),
-('ThinkPad X1', 'Laptop', 'Lenovo', '20QD00L1US', 'active'),
-('Pixel 5', 'Smartphone', 'Google', 'GD1YQ', 'inactive'),
-('Surface Pro 7', 'Tablet', 'Microsoft', 'VDV-00001', 'active'),
-('XPS 15', 'Laptop', 'Dell', '9500', 'active'),
-('MacBook Air', 'Laptop', 'Apple', 'M1', 'active'),
-('Fire HD 10', 'Tablet', 'Amazon', 'B07K1RZWMC', 'inactive'),
-('Rog Phone 5', 'Smartphone', 'Asus', 'ZS673KS', 'active');
+-- Note: You will need to generate UUIDs for these sample insertions.
+INSERT INTO devices (uuid, name, type, brand, model, status) VALUES
+(UUID(), 'iPhone 12', 'Smartphone', 'Apple', 'A2172', 'active'),
+(UUID(), 'Galaxy S21', 'Smartphone', 'Samsung', 'SM-G991U', 'active'),
+(UUID(), 'iPad Pro', 'Tablet', 'Apple', 'A2229', 'active'),
+(UUID(), 'ThinkPad X1', 'Laptop', 'Lenovo', '20QD00L1US', 'active'),
+(UUID(), 'Pixel 5', 'Smartphone', 'Google', 'GD1YQ', 'inactive'),
+(UUID(), 'Surface Pro 7', 'Tablet', 'Microsoft', 'VDV-00001', 'active'),
+(UUID(), 'XPS 15', 'Laptop', 'Dell', '9500', 'active'),
+(UUID(), 'MacBook Air', 'Laptop', 'Apple', 'M1', 'active'),
+(UUID(), 'Fire HD 10', 'Tablet', 'Amazon', 'B07K1RZWMC', 'inactive'),
+(UUID(), 'Rog Phone 5', 'Smartphone', 'Asus', 'ZS673KS', 'active');

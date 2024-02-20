@@ -1,18 +1,17 @@
 const config = async (app) => {
     const CONFIG_ENVS = {
-        'production': './production.js',
-        'development': './development.js',
-        'test': './test.js'
+        production: './production.js',
+        development: './development.js',
+        test: './test.js'
     };
 
-    const env = app.get('env');
-    
-    try {
-        const module = await import(CONFIG_ENVS[env]);
-        return module.default;
-    } catch (error) {
-        throw new Error(`Error al cargar la configuración para el entorno '${env}': ${error.message}`);
+    const envConfigPath = CONFIG_ENVS[app.get('env')];
+    if (!envConfigPath) {
+        throw new Error(`No configuration found for environment: ${app.get('env')}`);
     }
+    
+    const module = await import(envConfigPath);
+    return module.default;
 };
 
 export default config;
