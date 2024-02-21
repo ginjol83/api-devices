@@ -1,39 +1,44 @@
-const getDevicesQuery = (conn) => "SELECT * FROM device_management.devices;"
+const getDevicesQuery = () => `SELECT * FROM device_management.devices;`
 
-//const countDevicesQuery = (rest) => _devicesQuery()({ count: 'COUNT(*) AS count' })(rest)
+const countDevicesQuery = () => `SELECT count(*) FROM device_management.devices;`
 
-const insertDevicesQuery = ({id,name,type,brand,model,registration_date,status}) => {
-    const idCondition = id
-    const nameCondition = name
-    const typeCondition = type
-    const brandCondition = brand
-    const modelCondition = model
-    const registrationDateCondition = registration_date
-    const statusCondition = status
-
-    `INSERT INTO device_management.devices (
-        id,
-        name,
-        type,
-        brand,
-        model,
-        registration_date,
-        status 
+const insertDevicesQuery = () => {
+    return `INSERT INTO device_management.devices (
+            uuid,
+            name,
+            type,
+            brand,
+            model,
+            registration_date,
+            status 
         ) VALUES (
-            ${idCondition},
-            ${nameCondition},
-            ${typeCondition},
-            ${brandCondition},
-            ${modelCondition},
-            ${registrationDateCondition},
-            ${statusCondition}
-        );`
+            :uuid,
+            :name,
+            :type,
+            :brand,
+            :model,
+            :registration_date,
+            :status
+        );
+        
+        SELECT * FROM device_management.devices WHERE devices.uuid = :uuid;`
 }
 
-const modifyDevicesQuery = (conn) => "SELECT * FROM device_management.devices;"
+const modifyDevicesQuery = () => {
+    return `UPDATE device_management.devices
+                SET
+                    name = :name,
+                    type = :type,
+                    brand = :brand,
+                    model = :model,
+                    registration_date = :registration_date,
+                    status = :status
+                WHERE
+                    uuid = :uuid;
+                    
+            SELECT * FROM device_management.devices WHERE devices.uuid = :uuid;`
+            }
 
-const deleteDevicesQuery = (conn) => "SELECT * FROM device_management.devices;"
+const deleteDevicesQuery = () => `DELETE FROM device_management.devices WHERE uuid = :uuid;`
 
-
-
-export { getDevicesQuery, /*countDevicesQuery,*/ insertDevicesQuery, modifyDevicesQuery, deleteDevicesQuery }
+export { getDevicesQuery, countDevicesQuery, insertDevicesQuery, modifyDevicesQuery, deleteDevicesQuery }

@@ -1,18 +1,16 @@
-import { getDevicesModel, insertDevicesModel } from "../models/devicesModel.js"
+import { getDevicesModel, insertDevicesModel, modifyDevicesModel, deleteDevicesModel } from "../models/devicesModel.js"
 import { errorHandler } from '../utils/errors.js'
 import { saveErrorLog } from '../services/errorLogService.js'
 import mysql from "../adapters/mysql.js"
 
-
 const getDevicesController = (req, res, next, config) => {
-    config.then( configuration=> {
-        const conn = mysql.start(configuration)        
-        const result = getDevicesModel({conn})
-        result.then((response) => {
-			const  _data  = response
+	const conn = mysql.start(config)
+	const result = getDevicesModel({ conn })
+	result.then((response) => {
+		const _data = response
 
-			next({ _data })
-		})
+		next({ _data })
+	})
 		.catch((err) => {
 			const errResponse = err.response || { status: 500 }
 			const error = errorHandler(
@@ -25,7 +23,6 @@ const getDevicesController = (req, res, next, config) => {
 			saveErrorLog({ req, config, err })
 			res.status(errResponse.status).json(error)
 		})
-    })
 }
 
 const postDevicesController = (req, res, next, config) => {
@@ -50,7 +47,42 @@ const postDevicesController = (req, res, next, config) => {
 		})
 }
 
+const putDevicesController = (req, res, next, config) => {
+	const conn = mysql.start(config)
+	const uuid = req.params.uuid
 
+	modifyDevicesModel({ ...req.body, uuid, conn })
+		.then(loadTypes => {
+			const result = {
+				_data: { loadTypes }
+			}
+			next(result)
+		})
+		.catch(err => {
+			const error = errorHandler(err, config.environment)
+			res.status(error.code).json(error)
+		})
+		.finally(() => {
+			mysql.end(conn)
+		})
+}
 
+const deleteDevicesController = (req, res, next, config) => {
+	const conn = mysql.start(config)
+	const uuid = req.params.uuid
 
-export { getDevicesController, postDevicesController }
+	deleteDevicesModel({ uuid, conn })
+		.then(() => {
+			const result = {}
+			next(result)
+		})
+		.catch(err => {
+			const error = errorHandler(err, config.environment)
+			res.status(error.code).json(error)
+		})
+		.finally(() => {
+			mysql.end(conn)
+		})
+}
+
+export { getDevicesController, postDevicesController, putDevicesController, deleteDevicesController }
