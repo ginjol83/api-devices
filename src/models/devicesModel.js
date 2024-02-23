@@ -5,19 +5,27 @@ import { v4 as uuidv4 } from 'uuid'
 
 const getDevicesModel = ({ conn, ...rest }) => {
 	const now = moment.utc().format('YYYY-MM-DD HH:mm:ss')
-	const paramsToSearch = { ...rest, now }
+	const uuidDevice = rest.params.uuidDevice
+	const paramsToSearch = { uuidDevice, now }
 	return mysql
 		.execute(getDevicesQuery(paramsToSearch), conn, paramsToSearch)
-        .then(queryResult => queryResult.map(({id, ...resultFiltered }) => resultFiltered))
+        .then(Result => Result.map(({id, ...resultFiltered }) => resultFiltered))
 }
 
 const insertDevicesModel = ({ conn, ...params }) => {
 	const uuid = uuidv4()
 	const now = moment.utc().format('YYYY-MM-DD HH:mm:ss')
 
+	const requiredFields = params.name && params.type && params.brand && params.model && params.registration_date && params.status
+	
+	if(!requiredFields) { 
+		return Promise.resolve()
+	}
+
 	return mysql
-		.execute(insertDevicesQuery({ ...params, uuid, now }), conn, { ...params, uuid, now })
-		.then(queryResult => queryResult[1].map(({ ...resultFiltered }) => resultFiltered))
+			.execute(insertDevicesQuery({ ...params, uuid, now }), conn, { ...params, uuid, now })
+			.then(queryResult => queryResult[1].map(({ ...resultFiltered }) => resultFiltered))
+		
 }
 
 const modifyDevicesModel = ({ conn, ...params }) => {

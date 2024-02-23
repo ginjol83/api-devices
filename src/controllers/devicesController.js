@@ -5,7 +5,10 @@ import mysql from "../adapters/mysql.js"
 
 const getDevicesController = (req, res, next, config) => {
 	const conn = mysql.start(config)
-	const result = getDevicesModel({ conn })
+	const uuidDevice = req.query.uuid
+
+	const params = { uuidDevice }
+	const result = getDevicesModel({ conn, params })
 	result.then((response) => {
 		const _data = response
 
@@ -27,19 +30,22 @@ const getDevicesController = (req, res, next, config) => {
 
 const postDevicesController = (req, res, next, config) => {
 	const conn = mysql.start(config)
-	const createdby = req.headers['uuid-requester'] || null
-	const bookingChecksUuid = req.params.uuid
-	const field = req.params.field
 
-	insertDevicesModel({ bookingChecksUuid, field, ...req.body, createdby, conn })
-		.then(bookingChecksAmendments => {
-			const result = {
-				_data: { bookingChecksAmendments }
+	insertDevicesModel({ ...req.body, conn })
+		.then(devices => {
+			if (devices){
+				const result = {
+					_data: { devices }
+				}
+				next(result)
+			}else{
+				throw new Error("BAD_REQUEST")
 			}
-			next(result)
+			
 		})
 		.catch(err => {
-			const error = errorHandler(err, config.environment)
+			const errResult = err.message === "BAD_REQUEST" ? {message:err.message ,code:'BAD_REQUEST'} : err
+			const error = errorHandler(errResult, config.environment)
 			res.status(error.code).json(error)
 		})
 		.finally(() => {
@@ -52,9 +58,9 @@ const putDevicesController = (req, res, next, config) => {
 	const uuid = req.params.uuid
 
 	modifyDevicesModel({ ...req.body, uuid, conn })
-		.then(loadTypes => {
+		.then(devices => {
 			const result = {
-				_data: { loadTypes }
+				_data: { devices }
 			}
 			next(result)
 		})

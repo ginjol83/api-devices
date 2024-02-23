@@ -8,6 +8,10 @@ import { error404, errorHandler } from './utils/errors.js'
 import { getRoutes } from './utils/links.js'
 import path from 'path';
 import { fileURLToPath } from 'url';
+import swaggerUi from 'swagger-ui-express';
+import confSwagger from '../swaggerConfig.js';
+import colors from "colors";
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -15,10 +19,15 @@ const __dirname = path.dirname(__filename);
 const app = express()
 
 // CONFIGURATION ------------------------------------------------------------------------------------
-const initApp = configuration(app).then( configuration=> {
+
+const initApp = configuration(app).then(configuration => {
+	
 	const config = configuration
 	const port = config.port
+
 	// MIDDLEWARE ---------------------------------------------------------------------------------------
+	
+	app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(confSwagger)); //Swagger middleware
 
 	app.use(bodyParser.json({
 		limit: process.env.APP_BODY_LIMIT || config.bodyLimit
@@ -60,7 +69,7 @@ const initApp = configuration(app).then( configuration=> {
 
 		server = app.listen(process.env.PORT || config.port, () => {
 			const listeningPort = process.env.PORT || config.port
-			console.log('Server listening on port ' + listeningPort)
+			console.log('Server listening on port ' + listeningPort .green)
 		})
 	} else {
 		// In other environment, we are in charge of managing HTTPS connections
@@ -70,8 +79,8 @@ const initApp = configuration(app).then( configuration=> {
 			cert: file.readFileSync(__dirname + '/../cert.pem')
 		}
 
-		server = https.createServer(httpsOptions, app).listen(port, () => { 
-			console.log(`Server listening on port ${port}`)
+		server = https.createServer(httpsOptions, app).listen(port, () => {
+			console.log(`Server listening on port ${port}`.green)
 		})
 	}
 	return { app, server, linkRoutes }
@@ -80,4 +89,4 @@ const initApp = configuration(app).then( configuration=> {
 const linkRoutes = initApp.linkRoutes
 const server = initApp.server
 
-export { app, server, linkRoutes }
+export { app, server, linkRoutes, initApp }

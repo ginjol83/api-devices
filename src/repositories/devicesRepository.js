@@ -1,4 +1,13 @@
-const getDevicesQuery = () => `SELECT * FROM device_management.devices;`
+const getDevicesQuery = (params) => {
+    const uuidCondition = params.uuidDevice ? `and uuid like '${params.uuidDevice}' ` : ''
+    return `SELECT 
+        *
+    FROM device_management.devices
+        WHERE 1=1
+        ${uuidCondition} 
+    ;`
+}
+                                
 
 const countDevicesQuery = () => `SELECT count(*) FROM device_management.devices;`
 
@@ -24,15 +33,25 @@ const insertDevicesQuery = () => {
         SELECT * FROM device_management.devices WHERE devices.uuid = :uuid;`
 }
 
-const modifyDevicesQuery = () => {
+const modifyDevicesQuery = (params) => {
+    const uuidCondition = params.uuidDevice ? `and uuid like '${params.uuidDevice}' ` : ''
+
+    const nameCondition = params.name ?  'name = :name,' : ''
+    const typeCondition = params.type ?  'type = :type,' : ''
+    const brandCondition = params.brand ? 'brand = :brand,' : ''
+    const modelCondition = params.model ? 'model = :model,' : ''
+    const registrationDateCondition = params.registration_date ? 'registration_date = :registration_date,' : ''
+    const statusCondition = params.status ? 'status = :status,' : ''
+
     return `UPDATE device_management.devices
                 SET
-                    name = :name,
-                    type = :type,
-                    brand = :brand,
-                    model = :model,
-                    registration_date = :registration_date,
-                    status = :status
+                    ${nameCondition}
+                    ${typeCondition}
+                    ${brandCondition}
+                    ${modelCondition}
+                    ${registrationDateCondition}
+                    ${statusCondition}
+                    uuid = :uuid
                 WHERE
                     uuid = :uuid;
                     
