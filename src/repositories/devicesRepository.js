@@ -1,15 +1,36 @@
-const getDevicesQuery = (params) => {
+import { pagination } from '../utils/pagination.js'
+
+
+const _getDevicesQuery = (_pagination = '') => ({ count }) => (params) => {
     const uuidCondition = params.uuidDevice ? `and uuid like '${params.uuidDevice}' ` : ''
+    const brandCondition = params.brand ? `and brand like '%${params.brand}%'`: ''
+    const modelCondition = params.model ? `and model like '%${params.model}%'`: ''
+    const nameCondition = params.name ? `and name like '%${params.name}%'`: ''
+    const registrationDateCondition = params.registrationDate ? `and registration_date like '%${params.registrationDate}%'`: ''
+    const statusCondition = params.status ? `and status like '${params.status}'`: ''
+    const typeCondition = params.type ? `and type like '%${params.type}%'`: ''
+
     return `SELECT 
-        *
+    ${count || `*`}
     FROM device_management.devices
         WHERE 1=1
+
         ${uuidCondition} 
+        ${brandCondition}
+        ${modelCondition}
+        ${nameCondition}
+        ${registrationDateCondition}
+        ${statusCondition}
+        ${typeCondition}
+
+        ${_pagination}
+        
     ;`
 }
                                 
+const getDevicesQuery = ({ limit, page, ...rest }) => _getDevicesQuery(pagination({ limit, page }))({ count: false })(rest)
 
-const countDevicesQuery = () => `SELECT count(*) FROM device_management.devices;`
+const countDevicesQuery = (rest) => _getDevicesQuery()({ count: 'COUNT(*) AS count' })(rest)
 
 const insertDevicesQuery = () => {
     return `INSERT INTO device_management.devices (

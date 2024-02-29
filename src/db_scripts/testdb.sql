@@ -15,6 +15,20 @@ CREATE TABLE IF NOT EXISTS devices (
     UNIQUE KEY unique_device (name, brand, model)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    uuid CHAR(36) NOT NULL UNIQUE,
+    username VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    role VARCHAR(255),
+    bio TEXT,
+    avatar VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 -- Insert sample data into the devices table
 -- Note: You will need to generate UUIDs for these sample insertions.
 INSERT INTO devices (uuid, name, type, brand, model, status) VALUES
@@ -28,3 +42,8 @@ INSERT INTO devices (uuid, name, type, brand, model, status) VALUES
 (UUID(), 'MacBook Air', 'Laptop', 'Apple', 'M1', 'active'),
 (UUID(), 'Fire HD 10', 'Tablet', 'Amazon', 'B07K1RZWMC', 'inactive'),
 (UUID(), 'Rog Phone 5', 'Smartphone', 'Asus', 'ZS673KS', 'active');
+
+
+
+INSERT INTO users (uuid, username, password, name, email, role, bio, avatar)
+VALUES (UUID(), 'tester', 'password123', 'Test User', 'tester@example.com', 'Developer', 'This is a test bio.', '');

@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import { getDevicesController, postDevicesController, putDevicesController, deleteDevicesController } from "../controllers/devicesController.js"
+import { getUsersController, postUsersController, putUsersController, deleteUsersController } from "../controllers/usersController.js"
 import { addLinks } from '../utils/links.js'
 import { linkRoutes } from '../index.js'
 import { sendOkResponse, sendCreatedResponse, sendResponseNoContent } from '../utils/responses.js'
@@ -326,6 +327,58 @@ export default (config) => {
 		'/device/:uuid',
 		[param('uuid').isString()],
 		(req, res, next) => deleteDevicesController(req, res, next, config),
+		(result, req, res, next) => sendResponseNoContent(result, req, res)
+	)
+
+
+
+
+/*********************************************************************************************** */
+
+
+
+	routes.get(
+		'/users',
+		[
+			query('uuid').optional({ nullable: true }).isString(),
+		],
+		(req, res, next) => getUsersController(req, res, next, config),
+		(result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
+		(result, req, res, next) => sendOkResponse(result, req, res)
+	)
+
+	routes.get(
+		'/users/:uuid',
+		(req, res, next) => getUsersController(req, res, next, config),
+		(result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
+		(result, req, res, next) => sendOkResponse(result, req, res)
+	)
+
+	routes.post(
+		'/user',
+		[
+			check('name').isString(),
+		],
+		(req, res, next) => postUsersController(req, res, next, config),
+		(result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
+		(result, req, res, next) => sendCreatedResponse(result, req, res)
+	)
+
+	routes.put(
+		'/user/:uuid',
+		[
+			param('uuid').isString(), 
+		],
+		(req, res, next) => payloadExpressValidator(req, res, next, config),
+		(req, res, next) => putUsersController(req, res, next, config),
+		(result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
+		(result, req, res, next) => sendCreatedResponse(result, req, res)
+	)
+
+	routes.delete(
+		'/user/:uuid',
+		[param('uuid').isString()],
+		(req, res, next) => deleteUsersController(req, res, next, config),
 		(result, req, res, next) => sendResponseNoContent(result, req, res)
 	)
 

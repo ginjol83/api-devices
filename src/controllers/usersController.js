@@ -1,18 +1,18 @@
-import { getDevicesModel, insertDevicesModel, modifyDevicesModel, deleteDevicesModel, countDevicesModel } from "../models/devicesModel.js"
+import { getUsersModel, insertUsersModel, modifyUsersModel, deleteUsersModel, countUsersModel } from "../models/usersModel.js"
 import { errorHandler } from '../utils/errors.js'
 import { saveErrorLog } from '../services/errorLogService.js'
 import mysql from "../adapters/mysql.js"
 
-const getDevicesController = (req, res, next, config) => {
+const getUsersController = (req, res, next, config) => {
 	const conn = mysql.start(config)
 
 	Promise.all([
-		getDevicesModel({ ...req.query, conn }),
-		countDevicesModel({ ...req.query, conn })
+		getUsersModel({ ...req.query, conn }),
+		countUsersModel({ ...req.query, conn })
 	])
 		.then(([getResults, countResults]) =>
 			next({
-				_data: { devices: getResults },
+				_data: { users: getResults },
 				_page: {
 					totalElements: countResults,
 					limit: req.query.limit || 1,
@@ -29,17 +29,17 @@ const getDevicesController = (req, res, next, config) => {
 		})
 }
 
-const postDevicesController = (req, res, next, config) => {
+const postUsersController = (req, res, next, config) => {
 	const conn = mysql.start(config)
 
 	const date = new Date(req.body.registration_date);
 	req.body.registration_date = date.toISOString().split('T')[0];
 	
-	insertDevicesModel({ ...req.body, conn })
-		.then(devices => {
-			if (devices){
+	insertUsersModel({ ...req.body, conn })
+		.then(users => {
+			if (users){
 				const result = {
-					_data: { devices }
+					_data: { users }
 				}
 				next(result)
 			}else{
@@ -57,17 +57,17 @@ const postDevicesController = (req, res, next, config) => {
 		})
 }
 
-const putDevicesController = (req, res, next, config) => {
+const putUsersController = (req, res, next, config) => {
 	const conn = mysql.start(config)
 	const uuid = req.params.uuid
 
 	const date = new Date(req.body.registration_date);
 	req.body.registration_date = date.toISOString().split('T')[0];
 
-	modifyDevicesModel({ ...req.body, uuid, conn })
-		.then(devices => {
+	modifyUsersModel({ ...req.body, uuid, conn })
+		.then(users => {
 			const result = {
-				_data: { devices }
+				_data: { users }
 			}
 			next(result)
 		})
@@ -80,11 +80,11 @@ const putDevicesController = (req, res, next, config) => {
 		})
 }
 
-const deleteDevicesController = (req, res, next, config) => {
+const deleteUsersController = (req, res, next, config) => {
 	const conn = mysql.start(config)
 	const uuid = req.params.uuid
 
-	deleteDevicesModel({ uuid, conn })
+	deleteUsersModel({ uuid, conn })
 		.then(() => {
 			const result = {}
 			next(result)
@@ -98,4 +98,4 @@ const deleteDevicesController = (req, res, next, config) => {
 		})
 }
 
-export { getDevicesController, postDevicesController, putDevicesController, deleteDevicesController }
+export { getUsersController, postUsersController, putUsersController, deleteUsersController }
