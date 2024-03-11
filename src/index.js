@@ -1,4 +1,4 @@
-import express from 'express'
+import express, { json } from 'express'
 import configuration from './config/index.js'
 import bodyParser from 'body-parser'
 import routes from './routes/index.js'
@@ -51,7 +51,7 @@ const initApp = configuration(app).then(configuration => {
 	const links1 = getRoutes({ prefix: '', routes: r1.stack })
 	const linkRoutes = { ...links1 }
 
-	app.use('/', routes(config))
+	app.use('/', routes(config, linkRoutes))
 
 	// APPLICATION LAUNCHER ------------------------------------------------------------------
 	// 404 - Not found
@@ -68,8 +68,8 @@ const initApp = configuration(app).then(configuration => {
 		// So in production, Heroku is in charge of HTTPS.
 
 		server = app.listen(process.env.PORT || config.port, () => {
-			const listeningPort = process.env.PORT || config.port
-			console.log('Server listening on port ' + listeningPort .green)
+			const listeningPort = process.env.PORT || config.port  || 80
+			console.log(`Server listening on port ${listeningPort}`.green)
 		})
 	} else {
 		// In other environment, we are in charge of managing HTTPS connections

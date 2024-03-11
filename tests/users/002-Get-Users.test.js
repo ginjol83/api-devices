@@ -4,18 +4,18 @@ import { app, server, initApp } from '../../src/index.js'
 import colors from "colors";
 
 
-test('-------- Endpoint: GET /device'.blue, assert => {
+test('-------- Endpoint: GET /user'.blue, assert => {
 	const expectedCode = 200
 	const messageForExpectedCode = `Status code should be ${expectedCode}`.green
-	const messageForExpectedResult = 'Response should be an array of devices with length longer than 0'.green
+	const messageForExpectedResult = 'Response should be an array of users with length longer than 0'.green
 
 	initApp.then(application => {
 		request(application.app)
-			.get('/devices')
+			.get('/users')
 			.expect(expectedCode)
 			.then(res => {
 				assert.pass(messageForExpectedCode)
-				const actualResult = res.body._data.devices.length > 0
+				const actualResult = res.body._data.users.length > 0
 				assert.deepEqual(actualResult, true, messageForExpectedResult)
 			})
 			.catch(err => {
@@ -28,38 +28,40 @@ test('-------- Endpoint: GET /device'.blue, assert => {
 	})
 })
 
-test('-------- Endpoint: GET /device/uuid'.blue, assert => {
+test('-------- Endpoint: GET /user/uuid'.blue, assert => {
 	const expectedCode = 200
 	const messageForExpectedCode = `Status code should be ${expectedCode}`.green
-	const newDevice = {
-		name: "Test Device" + Date.now(),
-		type: "Smartphone" + Date.now(),
-		brand: "Test Brand" + Date.now(),
-		model: "Test Model" + Date.now(),
-		registration_date: "2024-02-22",
-		status: "Active"
+	const newUser = {
+		name: "Test User"+Date.now(),
+		username: "Test username"+ Date.now(),
+		password: "Test password"+ Date.now(),
+		email: "Test email"+ Date.now(),
+		role : "Test role "+ Date.now(),
+		bio: "Test bio"+ Date.now(),
+		avatar : "Test avatar "+ Date.now(),
 	}
-	const expectedResult = newDevice.name
-	const messageForExpectedResult = `device name should be ${expectedResult}`.green
+
+	const expectedResult = newUser.name
+	const messageForExpectedResult = `user name should be ${expectedResult}`.green
 
 	initApp.then(application => {
 
 		const req = request(application.app)
 
 		req
-			.post('/device')
-			.send(newDevice)
+			.post('/user')
+			.send(newUser)
 			.expect(201)
 			.then(res => {
-				const uuid = res.body._data.devices[0].uuid
+				const uuid = res.body._data.users[0].uuid
 
 				return req
-					.get(`/devices/${uuid}`)
+					.get(`/users/${uuid}`)
 					.expect(200)
 					.then(res2 => {
-						assert.pass(messageForExpectedCode)
+						 assert.pass(messageForExpectedCode)
 
-						const actualResult = res2.body._data.devices[0].name
+						const actualResult = res2.body._data.users[0].name
 
 						assert.deepEqual(actualResult, expectedResult, messageForExpectedResult)
 					})
@@ -74,14 +76,14 @@ test('-------- Endpoint: GET /device/uuid'.blue, assert => {
 	})
 })
 
-test('-------- Endpoint: GET /device/:uuid (error 404)'.blue, assert => {
+test('-------- Endpoint: GET /user/:uuid (error 404)'.blue, assert => {
 	const expectedCode = 404
 	const uuidNotFound = 'ThisUuidDoesntExist'
 	const messageForExpectedCode = `If uuid doesn\'t exist, status code should be ${expectedCode}`.green
 
 	initApp.then(application => {
 		request(application.app)
-			.get(`/device/${uuidNotFound}`)
+			.get(`/user/${uuidNotFound}`)
 			.expect(expectedCode)
 			.then(() => {
 				assert.pass(messageForExpectedCode)

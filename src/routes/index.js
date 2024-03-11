@@ -8,7 +8,7 @@ import { indexController } from '../controllers/indexController.js'
 import { check, param, query, body } from 'express-validator'
 import { payloadExpressValidator } from '../validators/payloadExpressValidator.js'
 
-export default (config) => {
+export default (config, linkRoutes) => {
 
 	const routes = Router()
 	const hasAddLinks = config.environment !== 'production'
@@ -37,7 +37,7 @@ export default (config) => {
 		(result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
 		(result, req, res, next) => sendOkResponse(result, req, res)
 	)
-	
+
 
 	/**
 	 * @swagger
@@ -89,7 +89,7 @@ export default (config) => {
 	routes.get(
 		'/devices',
 		[
-			query('uuid').optional({ nullable: true }).isString(),
+			param('uuid').optional({ nullable: true }).isString(),
 		],
 		(req, res, next) => getDevicesController(req, res, next, config),
 		(result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
@@ -143,7 +143,7 @@ export default (config) => {
 	 *         description: Device not found.
 	 */
 	routes.get(
-		'/devices/:uuid',
+		'/devices/:uuidDevice',
 		(req, res, next) => getDevicesController(req, res, next, config),
 		(result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
 		(result, req, res, next) => sendOkResponse(result, req, res)
@@ -293,7 +293,7 @@ export default (config) => {
 	routes.put(
 		'/device/:uuid',
 		[
-			param('uuid').isString(), 
+			param('uuid').isString(),
 			body('name').optional({ nullable: true }).isString(),
 			check('type').optional({ nullable: true }).isString(),
 			check('brand').optional({ nullable: true }).isString(),
@@ -330,12 +330,31 @@ export default (config) => {
 		(result, req, res, next) => sendResponseNoContent(result, req, res)
 	)
 
+	/* ---- users endpoints ---- */
 
-
-
-/*********************************************************************************************** */
-
-
+	/**
+	 * @swagger
+	 * /users:
+	 *   get:
+	 *     summary: Lists all users or searches by UUID.
+	 *     tags: [User]
+	 *     parameters:
+	 *       - in: query
+	 *         name: uuid
+	 *         schema:
+	 *           type: string
+	 *         required: false
+	 *         description: Optional UUID to filter the search for a specific user.
+	 *     responses:
+	 *       200:
+	 *         description: A list of users. Returns a single user if the UUID is specified.
+	 *         content:
+	 *           application/json:
+	 *             schema:
+	 *               type: array
+	 *               items:
+	 *                 $ref: '#/components/schemas/User'
+	 */
 
 	routes.get(
 		'/users',
@@ -347,6 +366,30 @@ export default (config) => {
 		(result, req, res, next) => sendOkResponse(result, req, res)
 	)
 
+	/**
+	 * @swagger
+	 * /users/{uuid}:
+	 *   get:
+	 *     summary: Retrieves a user by their UUID.
+	 *     tags: [User]
+	 *     parameters:
+	 *       - in: path
+	 *         name: uuid
+	 *         required: true
+	 *         schema:
+	 *           type: string
+	 *         description: The unique ID of the user to retrieve.
+	 *     responses:
+	 *       200:
+	 *         description: User retrieved successfully.
+	 *         content:
+	 *           application/json:
+	 *             schema:
+	 *               $ref: '#/components/schemas/User'
+	 *       404:
+	 *         description: User not found.
+	 */
+
 	routes.get(
 		'/users/:uuid',
 		(req, res, next) => getUsersController(req, res, next, config),
@@ -354,26 +397,125 @@ export default (config) => {
 		(result, req, res, next) => sendOkResponse(result, req, res)
 	)
 
+	/**
+	 * @swagger
+	 * /user:
+	 *   post:
+	 *     summary: Creates a new user.
+	 *     tags: [User]
+	 *     requestBody:
+	 *       required: true
+	 *       content:
+	 *         application/json:
+	 *           schema:
+	 *             type: object
+	 *             required:
+	 *               - name
+	 *             properties:
+	 *               name:
+	 *                 type: string
+	 *                 description: The name of the user.
+	 *     responses:
+	 *       201:
+	 *         description: User created successfully.
+	 *         content:
+	 *           application/json:
+	 *             schema:
+	 *               $ref: '#/components/schemas/User'
+	 */
+
 	routes.post(
 		'/user',
 		[
-			check('name').isString(),
-		],
+			param('uuid').isString(),
+			check('name').optional({ nullable: true }).isString(),
+			check('username').optional({ nullable: true }).isString(),
+			check('password').optional({ nullable: true }).isString(),
+			check('email').optional({ nullable: true }).isString(),
+			check('role').optional({ nullable: true }).isString(),
+			check('bio').optional({ nullable: true }).isString(),
+			check('avatar').optional({ nullable: true }).isString() ],
 		(req, res, next) => postUsersController(req, res, next, config),
 		(result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
 		(result, req, res, next) => sendCreatedResponse(result, req, res)
 	)
 
+	/**
+	 * @swagger
+	 * /user/{uuid}:
+	 *   put:
+	 *     summary: Updates an existing user.
+	 *     tags: [User]
+	 *     parameters:
+	 *       - in: path
+	 *         name: uuid
+	 *         required: true
+	 *         schema:
+	 *           type: string
+	 *         description: The unique ID of the user to update.
+	 *     requestBody:
+	 *       required: true
+	 *       content:
+	 *         application/json:
+	 *           schema:
+	 *             type: object
+	 *             properties:
+	 *               name:
+	 *                 type: string
+	 *                 description: The new name of the user.
+	 *     responses:
+	 *       200:
+	 *         description: Successfully updated the user.
+	 *         content:
+	 *           application/json:
+	 *             schema:
+	 *               $ref: '#/components/schemas/User'
+	 */
+	
+
+		
+		
+		
+		 
+		
+		
+
+
 	routes.put(
 		'/user/:uuid',
 		[
-			param('uuid').isString(), 
-		],
+			param('uuid').isString(),
+			check('name').optional({ nullable: true }).isString(),
+			check('username').optional({ nullable: true }).isString(),
+			check('password').optional({ nullable: true }).isString(),
+			check('email').optional({ nullable: true }).isString(),
+			check('role').optional({ nullable: true }).isString(),
+			check('bio').optional({ nullable: true }).isString(),
+			check('avatar').optional({ nullable: true }).isString() ],
 		(req, res, next) => payloadExpressValidator(req, res, next, config),
 		(req, res, next) => putUsersController(req, res, next, config),
 		(result, req, res, next) => addLinks(result, req, res, next, hasAddLinks, linkRoutes),
 		(result, req, res, next) => sendCreatedResponse(result, req, res)
 	)
+
+
+	/**
+	 * @swagger
+	 * /user/{uuid}:
+	 *   delete:
+	 *     summary: Deletes a specific user.
+	 *     tags: [User]
+	 *     parameters:
+	 *       - in: path
+	 *         name: uuid
+	 *         required: true
+	 *         schema:
+	 *           type: string
+	 *         description: The unique ID of the user to delete.
+	 *     responses:
+	 *       204:
+	 *         description: Successfully deleted the user.
+	 */
 
 	routes.delete(
 		'/user/:uuid',

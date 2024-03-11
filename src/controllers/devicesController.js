@@ -5,9 +5,9 @@ import mysql from "../adapters/mysql.js"
 
 const getDevicesController = (req, res, next, config) => {
 	const conn = mysql.start(config)
-
+	const uuidDevice =  req.params.uuidDevice
 	Promise.all([
-		getDevicesModel({ ...req.query, conn }),
+		getDevicesModel({...req.query, uuidDevice, conn }),
 		countDevicesModel({ ...req.query, conn })
 	])
 		.then(([getResults, countResults]) =>
@@ -31,9 +31,12 @@ const getDevicesController = (req, res, next, config) => {
 
 const postDevicesController = (req, res, next, config) => {
 	const conn = mysql.start(config)
-
-	const date = new Date(req.body.registration_date);
-	req.body.registration_date = date.toISOString().split('T')[0];
+	
+	if(req.body.registration_date){
+		const date = new Date(req.body.registration_date);
+		req.body.registration_date = date.toISOString().split('T')[0];
+	}
+	
 	
 	insertDevicesModel({ ...req.body, conn })
 		.then(devices => {
@@ -61,8 +64,10 @@ const putDevicesController = (req, res, next, config) => {
 	const conn = mysql.start(config)
 	const uuid = req.params.uuid
 
-	const date = new Date(req.body.registration_date);
-	req.body.registration_date = date.toISOString().split('T')[0];
+	if(req.body.registration_date){
+		const date = new Date(req.body.registration_date);
+		req.body.registration_date = date.toISOString().split('T')[0];
+	}
 
 	modifyDevicesModel({ ...req.body, uuid, conn })
 		.then(devices => {

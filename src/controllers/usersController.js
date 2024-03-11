@@ -4,24 +4,30 @@ import { saveErrorLog } from '../services/errorLogService.js'
 import mysql from "../adapters/mysql.js"
 
 const getUsersController = (req, res, next, config) => {
+	const uuid =  req.params.uuid
 	const conn = mysql.start(config)
 
 	Promise.all([
-		getUsersModel({ ...req.query, conn }),
+		getUsersModel({ ...req.query, uuid, conn }),
 		countUsersModel({ ...req.query, conn })
 	])
-		.then(([getResults, countResults]) =>
-			next({
-				_data: { users: getResults },
-				_page: {
-					totalElements: countResults,
-					limit: req.query.limit || 1,
-					page: req.query.page || (countResults && 100) || 0
-				}
-			})
-		)
+		.then(([getResults, countResults]) =>{
+			if(getResults.length > 0) {
+				next({
+					_data: { users: getResults },
+					_page: {
+						totalElements: countResults,
+						limit: req.query.limit || 1,
+						page: req.query.page || (countResults && 100) || 0
+					}
+				})
+			}else{
+				throw new Error("NOT_FOUND")
+			}
+		})
 		.catch(err => {
-			const error = errorHandler(err, config.environment)
+			const errResult = err.message === "NOT_FOUND" ? {message:err.message ,code:'NOT_FOUND'} : err
+			const error = errorHandler(errResult, config.environment)
 			res.status(error.code).json(error)
 		})
 		.finally(() => {
@@ -31,9 +37,6 @@ const getUsersController = (req, res, next, config) => {
 
 const postUsersController = (req, res, next, config) => {
 	const conn = mysql.start(config)
-
-	const date = new Date(req.body.registration_date);
-	req.body.registration_date = date.toISOString().split('T')[0];
 	
 	insertUsersModel({ ...req.body, conn })
 		.then(users => {
@@ -60,9 +63,6 @@ const postUsersController = (req, res, next, config) => {
 const putUsersController = (req, res, next, config) => {
 	const conn = mysql.start(config)
 	const uuid = req.params.uuid
-
-	const date = new Date(req.body.registration_date);
-	req.body.registration_date = date.toISOString().split('T')[0];
 
 	modifyUsersModel({ ...req.body, uuid, conn })
 		.then(users => {

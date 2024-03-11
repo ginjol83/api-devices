@@ -2,14 +2,14 @@ import { pagination } from '../utils/pagination.js'
 
 
 const _getUsersQuery = (_pagination = '') => ({ count }) => (params) => {
-    const uuidCondition = params.uuidDevice ? `and uuid like '${params.uuid}' ` : ''
-    const usernameCondition = params.username ? `and username like '${params.username}'` : ''
-    const passwordCondition = params.password ? `and password like '${params.password}'` : ''
-    const nameCondition = params.name ? `and name  like '${params.name }'` : ''
-    const emailCondition = params.email ? `and email like '${params.email}'` : ''
-    const roleCondition = params.role ? `and role like '${params.role}'` : ''
-    const bioCondition = params.bio ? `and bio like '${params.bio}'` : ''
-    const avatarCondition = params.avatar ? `and avatar like '${params.avatar}'` : ''
+    const uuidCondition = params.uuid ? `and uuid like '%${params.uuid}%' ` : ''
+    const usernameCondition = params.username ? `and username like '%${params.username}%'` : ''
+    const passwordCondition = params.password ? `and password like '%${params.password}%'` : ''
+    const nameCondition = params.name ? `and name  like '%${params.name }%'` : ''
+    const emailCondition = params.email ? `and email like '%${params.email}%'` : ''
+    const roleCondition = params.role ? `and role like '%${params.role}%'` : ''
+    const bioCondition = params.bio ? `and bio like '%${params.bio}%'` : ''
+    const avatarCondition = params.avatar ? `and avatar like '%${params.avatar}%'` : ''
 
     return `SELECT 
     ${count || `*`}
@@ -36,21 +36,21 @@ const countUsersQuery = (rest) => _getUsersQuery()({ count: 'COUNT(*) AS count' 
 
 const insertUsersQuery = () => {
     return `INSERT INTO device_management.users (
+            uuid,
             username, 
             password, 
             name, 
             email, 
             role, 
-            bio, 
-            avatar
+            bio
         ) VALUES (
+            :uuid,
             :username, 
             :password, 
             :name, 
             :email, 
             :role, 
-            :bio, 
-            :avatar
+            :bio
         );
 
         SELECT * FROM device_management.users WHERE users.uuid = :uuid;`

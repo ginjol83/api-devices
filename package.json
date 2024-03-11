@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "test": "set NODE_ENV=test&& tape ./tests/*/*.test.js | tap-arc",
-    "start": "node ./src/index.js",
+    "start": "set NODE_ENV=production&&node ./src/index.js",
+    "dev": "set NODE_ENV=development&&node ./src/index.js",
     "build": "webpack"
   },
   "author": "",
